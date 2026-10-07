@@ -1,0 +1,38 @@
+name: Deploy isolated v1 preview
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: isolated-preview-pages
+  cancel-in-progress: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: neocjmix/holographic-button
+          ref: 21420b0bf965d937ecfd8488d513f838ad20c85f
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm run typecheck
+      - run: npx tsc --noEmit --jsx react-jsx --module esnext --moduleResolution bundler --target es2022 --allowJs --checkJs false --skipLibCheck preview/v1/lab.tsx
+      - run: node --test preview/tests/*.test.mjs
+      - run: npm run build:preview
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: preview-dist
+      - uses: actions/deploy-pages@v4
+        id: deploy
