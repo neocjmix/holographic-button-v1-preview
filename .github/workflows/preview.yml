@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: neocjmix/holographic-button
-          ref: ce69ae714221783caeaf3eca203fa957b3d0a515
+          ref: 0443a31de64cd09062f636c613b8d3219f2f4b72
       - uses: actions/setup-node@v4
         with:
           node-version: 24
